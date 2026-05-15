@@ -768,3 +768,49 @@ SQUARE CARDS
   z-index: 9999;
   transition: width 0.1s ease;
 }
+
+/* =========================
+THEME STYLING
+========================= */
+
+.theme__group {
+  margin-bottom: 5rem;
+}
+
+.theme__group:last-child {
+  margin-bottom: 0;
+}
+
+.theme__title {
+  font-family: var(--header-font);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  padding-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+/* Subtle line under the theme title */
+.theme__title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background-color: var(--text-dark);
+}
+
+/* Adjust grid for theme pairs */
+@media (width > 768px) {
+  .theme__group .portfolio__grid {
+    /* Since each theme only has 2 items, we center them */
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+    margin: auto;
+  }
+}
