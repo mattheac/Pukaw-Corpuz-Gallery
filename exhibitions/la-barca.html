@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>La Barca de Aqueronte | PUKAW Interactive Exhibit</title>
+    <style>
+      /* --- GOOGLE ARTS & CULTURE THEME --- */
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #1a1a1a;
+        --accent-color: #000000;
+        --gray-text: #5f6368;
+        --card-bg: #f8f9fa;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Georgia", serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        scroll-behavior: smooth;
+        line-height: 1.6;
+      }
+
+      /* --- PROGRESS & NAV --- */
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        width: 0%;
+        background: var(--accent-color);
+        z-index: 10000;
+        transition: width 0.1s ease;
+      }
+
+      .chapter-nav {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        z-index: 999;
+      }
+
+      .chapter-nav .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        display: block;
+      }
+
+      .chapter-nav .dot:hover,
+      .chapter-nav .dot.active {
+        background: var(--accent-color);
+        transform: scale(1.5);
+      }
+
+      /* --- HERO SECTION --- */
+      .exhibit__hero {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .exhibit__hero img {
+        width: 100%;
+        height: 130%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        will-change: transform;
+      }
+
+      .exhibit__overlay {
+        padding: 4rem;
+        width: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        color: white;
+      }
+
+      .exhibit__overlay h1 {
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        margin: 0;
+        font-weight: 400;
+        letter-spacing: -1px;
+        line-height: 1.1;
+      }
+
+      .exhibit__overlay p {
+        font-size: 1.1rem;
+        margin-top: 10px;
+        font-family: sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        opacity: 0.8;
+      }
+
+      /* --- CONTENT LAYOUT --- */
+      .exhibit__container {
+        max-width: 850px;
+        margin: auto;
+        padding: 8rem 2rem;
+      }
+
+      .exhibit__block {
+        margin-bottom: 8rem;
+      }
+
+      .exhibit__block h2 {
+        font-family: sans-serif;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: var(--gray-text);
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+      }
+
+      .exhibit__block h3 {
+        font-family: sans-serif;
+        font-size: 1.4rem;
+        margin: 2rem 0 1rem 0;
+        font-weight: 600;
+      }
+
+      .exhibit__block p {
+        font-size: 1.25rem;
+        line-height: 2.1rem;
+        margin-bottom: 1.8rem;
+        color: #333;
+      }
+
+      /* --- ANALYSIS CARDS --- */
+      .analysis-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 3rem;
+      }
+
+      .analysis-card {
+        padding: 2.5rem;
+        background: var(--card-bg);
+        border-radius: 4px;
+        cursor: help;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      }
+
+      .analysis-card .label {
+        font-family: sans-serif;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--gray-text);
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .analysis-card h4 {
+        font-family: sans-serif;
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--accent-color);
+      }
+
+      .hidden-text {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.5s ease;
+        color: #444;
+        font-size: 1.1rem;
+        line-height: 1.8rem;
+        border-top: 1px solid #ddd;
+      }
+
+      .analysis-card:hover {
+        background: #fff;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        transform: translateY(-5px);
+      }
+
+      .analysis-card:hover .hidden-text {
+        opacity: 1;
+        max-height: 300px;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+      }
+
+      /* --- IMAGE DETAIL --- */
+      .exhibit__image {
+        margin: 8rem 0;
+        text-align: center;
+      }
+
+      .exhibit__image img {
+        width: 100%;
+        max-width: 1100px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+      }
+
+      .caption {
+        font-family: sans-serif;
+        font-size: 0.9rem;
+        color: var(--gray-text);
+        margin-top: 2rem;
+        font-style: italic;
+      }
+
+      /* --- ANIMATIONS --- */
+      .exhibit__block,
+      .exhibit__image,
+      .analysis-card {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 1s ease;
+      }
+
+      .exhibit__block.show,
+      .exhibit__image.show,
+      .analysis-card.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* --- FOOTER --- */
+      .exhibit__footer {
+        padding: 8rem 2rem;
+        text-align: center;
+        background: #f8f9fa;
+      }
+
+      .exhibit__footer a {
+        font-family: sans-serif;
+        text-decoration: none;
+        color: var(--text-color);
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+        padding: 1rem 2rem;
+        border: 1px solid #ccc;
+        transition: 0.3s;
+      }
+
+      .exhibit__footer a:hover {
+        background: black;
+        color: white;
+        border-color: black;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="scroll-progress" id="bar"></div>
+
+    <nav class="chapter-nav">
+      <a href="#context" class="dot" title="Context"></a>
+      <a href="#visual" class="dot" title="Analysis"></a>
+      <a href="#impact" class="dot" title="Impact"></a>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="exhibit__hero">
+      <img
+        src="../assets/barca.PNG"
+        id="heroImg"
+        alt="La Barca de Aqueronte Full Work"
+      />
+      <div class="exhibit__overlay">
+        <p>Félix Resurrección Hidalgo • 1887</p>
+        <h1>La Barca de Aqueronte</h1>
+      </div>
+    </header>
+
+    <section class="exhibit__container">
+      <!-- SECTION 1: CONTEXT -->
+      <div class="exhibit__block" id="context">
+        <h2>Context</h2>
+        <p>
+          Painted in 1887, <strong>La Barca de Aqueronte</strong> was created
+          during the height of Filipino <em>ilustrado</em> presence in Europe.
+          It was exhibited in Spain and received recognition in academic art
+          circles, contributing to the international reputation of Filipino
+          artists like Félix Resurrección Hidalgo.
+        </p>
+        <p>
+          The painting draws from classical Greek mythology, specifically the
+          river Acheron in the underworld, where souls are ferried into Hades.
+          The work was not commissioned; it was independently produced by
+          Hidalgo for exhibition in European academic art venues.
+        </p>
+        <p>
+          Its primary audience was the European art establishment—critics,
+          scholars, and elite viewers familiar with classical mythology and
+          academic symbolism, serving as a display of technical and intellectual
+          mastery.
+        </p>
+      </div>
+
+      <!-- SECTION 2: ANALYSIS -->
+      <div class="exhibit__block" id="visual">
+        <h2>Visual and Semiotic Analysis</h2>
+        <p>
+          Analyze the somber, existential weight of the underworld through these
+          key visual elements.
+        </p>
+
+        <div class="analysis-grid">
+          <!-- Card 1 -->
+          <div class="analysis-card">
+            <span class="label">Key Visual Element</span>
+            <h4>A dark, turbulent river scene representing the underworld</h4>
+            <div class="hidden-text">
+              <strong>Possible Interpretation:</strong><br />
+              In a semiotic sense, this may symbolize transition, death, or an
+              irreversible fate that awaits both the figures on canvas and the
+              human condition.
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="analysis-card">
+            <span class="label">Key Visual Element</span>
+            <h4>A boat carrying lost or suffering souls</h4>
+            <div class="hidden-text">
+              <strong>Possible Interpretation:</strong><br />
+              The vessel acts as a powerful representation of human helplessness
+              in the face of inevitable suffering and the tides of time.
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="analysis-card">
+            <span class="label">Key Visual Element</span>
+            <h4>A somber, oppressive atmosphere dominated by shadows</h4>
+            <div class="hidden-text">
+              <strong>Possible Interpretation:</strong><br />
+              The heavy chiaroscuro and movement may evoke a sense of collective
+              despair or existential suffering, reflecting the darkness of the
+              mortal journey.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERMEDIATE IMAGE -->
+      <div class="exhibit__image">
+        <img src="../assets/barca.PNG" alt="Detail of La Barca de Aqueronte" />
+        <p class="caption">
+          Hidalgo's masterful use of shadow defines the chilling transit to the
+          afterlife.
+        </p>
+      </div>
+
+      <!-- SECTION 3: HISTORICAL IMPACT -->
+      <div class="exhibit__block" id="impact">
+        <h2>Historical Impact</h2>
+
+        <h3>A Testament to Intellectual Parity</h3>
+        <p>
+          For the Filipino <em>ilustrados</em> navigating the high societies of
+          Europe, <em>La Barca de Aqueronte</em> was a badge of cultural honor.
+          When the painting received a gold medal at the 1887 Exposición de
+          Bellas Artes in Madrid and a silver medal at the 1889 Paris
+          Exposition, it shattered the colonial narrative that Filipinos were
+          intellectually "stunted."
+        </p>
+        <p>
+          To the Filipino community, Hidalgo’s ability to master the complex,
+          dark, and highly intellectual themes of Dante’s
+          <em>Inferno</em> served as irrefutable proof of their competence. This
+          recognition abroad was vital in shaping a modern Filipino identity—one
+          that demanded respect and equality through undeniable excellence.
+        </p>
+
+        <h3>Igniting the Propaganda Movement</h3>
+        <p>
+          Historically, the painting became a cornerstone of the "Cultural
+          Propaganda." By achieving consistent international acclaim, Hidalgo
+          and his contemporaries gave reformists like José Rizal and Marcelo H.
+          del Pilar the political leverage they needed.
+        </p>
+        <p>
+          These leaders used the global prestige of the work to argue that a
+          nation capable of such profound genius could not remain a mere colony
+          of "second-class" citizens. The painting transformed the Filipino
+          struggle from a local grievance into an international cause for human
+          rights, emboldening a generation to break their chains.
+        </p>
+      </div>
+    </section>
+
+    <footer class="exhibit__footer">
+      <a href="../index.html">← Back to Gallery</a>
+    </footer>
+
+    <script>
+      // SCROLL PROGRESS & PARALLAX
+      const bar = document.getElementById("bar");
+      const heroImg = document.getElementById("heroImg");
+
+      window.onscroll = () => {
+        let winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        let height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        bar.style.width = scrolled + "%";
+
+        // Parallax Effect
+        if (winScroll < window.innerHeight * 1.5) {
+          heroImg.style.transform = `translateY(${winScroll * 0.35}px)`;
+        }
+
+        updateNav(winScroll);
+      };
+
+      // FADE-IN ON SCROLL
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) entry.target.classList.add("show");
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".exhibit__block, .exhibit__image, .analysis-card")
+        .forEach((el) => {
+          observer.observe(el);
+        });
+
+      // NAV DOTS UPDATE
+      function updateNav(scrollPos) {
+        const sections = ["context", "visual", "impact"];
+        sections.forEach((id, index) => {
+          const el = document.getElementById(id);
+          const dot = document.querySelectorAll(".dot")[index];
+          if (el.offsetTop - 300 <= scrollPos) {
+            document
+              .querySelectorAll(".dot")
+              .forEach((d) => d.classList.remove("active"));
+            dot.classList.add("active");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

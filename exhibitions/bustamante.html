@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      El Asesinato del Gobernador Bustamante | PUKAW Interactive Exhibit
+    </title>
+    <style>
+      /* --- GOOGLE ARTS & CULTURE THEME --- */
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #1a1a1a;
+        --accent-color: #000000;
+        --gray-text: #5f6368;
+        --card-bg: #f8f9fa;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Georgia", serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        scroll-behavior: smooth;
+        line-height: 1.6;
+      }
+
+      /* --- PROGRESS & NAV --- */
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        width: 0%;
+        background: var(--accent-color);
+        z-index: 10000;
+        transition: width 0.1s ease;
+      }
+
+      .chapter-nav {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        z-index: 999;
+      }
+
+      .chapter-nav .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        display: block;
+      }
+
+      .chapter-nav .dot:hover,
+      .chapter-nav .dot.active {
+        background: var(--accent-color);
+        transform: scale(1.5);
+      }
+
+      /* --- HERO SECTION --- */
+      .exhibit__hero {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .exhibit__hero img {
+        width: 100%;
+        height: 130%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        will-change: transform;
+      }
+
+      .exhibit__overlay {
+        padding: 4rem;
+        width: 100%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        color: white;
+      }
+
+      .exhibit__overlay h1 {
+        font-size: clamp(2rem, 5vw, 4rem);
+        margin: 0;
+        font-weight: 400;
+        letter-spacing: -1px;
+        line-height: 1.1;
+      }
+
+      .exhibit__overlay p {
+        font-size: 1.1rem;
+        margin-top: 10px;
+        font-family: sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        opacity: 0.8;
+      }
+
+      /* --- CONTENT LAYOUT --- */
+      .exhibit__container {
+        max-width: 850px;
+        margin: auto;
+        padding: 8rem 2rem;
+      }
+
+      .exhibit__block {
+        margin-bottom: 8rem;
+      }
+
+      .exhibit__block h2 {
+        font-family: sans-serif;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: var(--gray-text);
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+      }
+
+      .exhibit__block h3 {
+        font-family: sans-serif;
+        font-size: 1.4rem;
+        margin: 2rem 0 1rem 0;
+        font-weight: 600;
+      }
+
+      .exhibit__block p {
+        font-size: 1.25rem;
+        line-height: 2.1rem;
+        margin-bottom: 1.8rem;
+        color: #333;
+      }
+
+      /* --- ANALYSIS CARDS --- */
+      .analysis-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 3rem;
+      }
+
+      .analysis-card {
+        padding: 2.5rem;
+        background: var(--card-bg);
+        border-radius: 4px;
+        cursor: help;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      }
+
+      .analysis-card .label {
+        font-family: sans-serif;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--gray-text);
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .analysis-card h4 {
+        font-family: sans-serif;
+        font-size: 1.2rem;
+        margin: 0;
+        color: var(--accent-color);
+      }
+
+      .hidden-text {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.5s ease;
+        color: #444;
+        font-size: 1.1rem;
+        line-height: 1.8rem;
+        border-top: 1px solid #ddd;
+      }
+
+      .analysis-card:hover {
+        background: #fff;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        transform: translateY(-5px);
+      }
+
+      .analysis-card:hover .hidden-text {
+        opacity: 1;
+        max-height: 300px;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+      }
+
+      /* --- IMAGE DETAIL --- */
+      .exhibit__image {
+        margin: 8rem 0;
+        text-align: center;
+      }
+
+      .exhibit__image img {
+        width: 100%;
+        max-width: 1100px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+      }
+
+      .caption {
+        font-family: sans-serif;
+        font-size: 0.9rem;
+        color: var(--gray-text);
+        margin-top: 2rem;
+        font-style: italic;
+      }
+
+      /* --- ANIMATIONS --- */
+      .exhibit__block,
+      .exhibit__image,
+      .analysis-card {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 1s ease;
+      }
+
+      .exhibit__block.show,
+      .exhibit__image.show,
+      .analysis-card.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* --- FOOTER --- */
+      .exhibit__footer {
+        padding: 8rem 2rem;
+        text-align: center;
+        background: #f8f9fa;
+      }
+
+      .exhibit__footer a {
+        font-family: sans-serif;
+        text-decoration: none;
+        color: var(--text-color);
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+        padding: 1rem 2rem;
+        border: 1px solid #ccc;
+        transition: 0.3s;
+      }
+
+      .exhibit__footer a:hover {
+        background: black;
+        color: white;
+        border-color: black;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="scroll-progress" id="bar"></div>
+
+    <nav class="chapter-nav">
+      <a href="#context" class="dot" title="Context"></a>
+      <a href="#visual" class="dot" title="Analysis"></a>
+      <a href="#impact" class="dot" title="Impact"></a>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="exhibit__hero">
+      <img
+        src="../assets/bustamante.JPG"
+        id="heroImg"
+        alt="El Asesinato del Gobernador Bustamante"
+      />
+      <div class="exhibit__overlay">
+        <p>Félix Resurrección Hidalgo • 1884</p>
+        <h1>El Asesinato del Gobernador Bustamante</h1>
+      </div>
+    </header>
+
+    <section class="exhibit__container">
+      <!-- SECTION 1: CONTEXT -->
+      <div class="exhibit__block" id="context">
+        <h2>Context</h2>
+        <p>
+          Painted in 1884,
+          <strong>El Asesinato del Gobernador Bustamante</strong> depicts the
+          1719 assassination of Spanish Governor-General Fernando Manuel de
+          Bustamante. The event itself reflected deep tensions between colonial
+          civil authority and powerful religious institutions in the
+          Philippines.
+        </p>
+        <p>
+          By the late 19th century—when Hidalgo painted this—the
+          <em>ilustrados</em> were increasingly critical of clerical abuses and
+          political corruption under Spanish rule. The painting was produced
+          independently by Félix Resurrección Hidalgo, likely for exhibition in
+          Europe as part of his artistic career.
+        </p>
+        <p>
+          Its intended audience was primarily European art critics and elites,
+          though its subject matter resonated strongly with Filipino reformists
+          aware of colonial injustices and the power of the religious orders.
+        </p>
+      </div>
+
+      <!-- SECTION 2: ANALYSIS -->
+      <div class="exhibit__block" id="visual">
+        <h2>Visual and Semiotic Analysis</h2>
+        <p>
+          Witness the chaos of the colonial fracture through these key visual
+          elements.
+        </p>
+
+        <div class="analysis-grid">
+          <!-- Card 1 -->
+          <div class="analysis-card">
+            <span class="label">Key Visual Element</span>
+            <h4>A chaotic, violent scene centered on Bustamante’s killing</h4>
+            <div class="hidden-text">
+              <strong>Possible Interpretation:</strong><br />
+              In a semiotic sense, the assassination may represent the total
+              failure of justice and the breakdown of civil order within the
+              colony.
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="analysis-card">
+            <span class="label">Key Visual Element</span>
+            <h4>Religious figures (friars) prominently involved</h4>
+            <div class="hidden-text">
+              <strong>Possible Interpretation:</strong><br />
+              The inclusion of friars in a violent act suggests clerical
+              dominance over civil governance and the "frailocracy" that
+              governed Philippine life.
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="analysis-card">
+            <span class="label">Key Visual Element</span>
+            <h4>Gestures of aggression, panic, and disorder</h4>
+            <div class="hidden-text">
+              <strong>Possible Interpretation:</strong><br />
+              The physical instability of the composition reflects the
+              deep-seated instability and volatility inherent within the
+              colonial system.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERMEDIATE IMAGE -->
+      <div class="exhibit__image">
+        <img
+          src="../assets/bustamante.JPG"
+          alt="Detail of El Asesinato del Gobernador Bustamante"
+        />
+        <p class="caption">
+          Hidalgo captures the brutal intersection of religion and politics.
+        </p>
+      </div>
+
+      <!-- SECTION 3: HISTORICAL IMPACT -->
+      <div class="exhibit__block" id="impact">
+        <h2>Historical Impact</h2>
+
+        <h3>A Mirror of Systemic Corruption</h3>
+        <p>
+          While Hidalgo’s earlier works leaned into mythology,
+          <em>El Asesinato</em> confronted the grim reality of Philippine
+          history—specifically the 1719 lynching of a Spanish Governor-General
+          by a mob led by friars. For Filipino <em>ilustrados</em> and
+          reformists, this was a shocking reminder of the dangers of unchecked
+          religious authority.
+        </p>
+        <p>
+          The painting portrayed the colonial government as fragile and
+          susceptible to the whims of powerful religious orders. By seeing a
+          representative of the Spanish Crown fall victim to the system,
+          Filipinos began to perceive the administration not as an infallible
+          source of order, but as a fractured institution.
+        </p>
+
+        <h3>The Catalyst for Revolutionary Logic</h3>
+        <p>
+          Historically, <em>El Asesinato</em> served as a vital intellectual
+          bridge to the 1896 Revolution. By highlighting historical abuse and
+          the brutal physical violence inherent in colonial politics, the work
+          helped transition the nationalist movement from a call for
+          "assimilation" to a cry for "separation."
+        </p>
+        <p>
+          It provided visual proof that colonial institutions were fundamentally
+          oppressive. As peaceful efforts were met with exile, the imagery of
+          the dying Bustamante served as a grim prophecy: if the system could
+          not be reformed by the pen, it would inevitably be dismantled by the
+          sword.
+        </p>
+      </div>
+    </section>
+
+    <footer class="exhibit__footer">
+      <a href="../index.html">← Back to Gallery</a>
+    </footer>
+
+    <script>
+      // SCROLL PROGRESS & PARALLAX
+      const bar = document.getElementById("bar");
+      const heroImg = document.getElementById("heroImg");
+
+      window.onscroll = () => {
+        let winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        let height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        bar.style.width = scrolled + "%";
+
+        // Parallax Effect
+        if (winScroll < window.innerHeight * 1.5) {
+          heroImg.style.transform = `translateY(${winScroll * 0.35}px)`;
+        }
+
+        updateNav(winScroll);
+      };
+
+      // FADE-IN ON SCROLL
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) entry.target.classList.add("show");
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".exhibit__block, .exhibit__image, .analysis-card")
+        .forEach((el) => {
+          observer.observe(el);
+        });
+
+      // NAV DOTS UPDATE
+      function updateNav(scrollPos) {
+        const sections = ["context", "visual", "impact"];
+        sections.forEach((id, index) => {
+          const el = document.getElementById(id);
+          const dot = document.querySelectorAll(".dot")[index];
+          if (el.offsetTop - 300 <= scrollPos) {
+            document
+              .querySelectorAll(".dot")
+              .forEach((d) => d.classList.remove("active"));
+            dot.classList.add("active");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
